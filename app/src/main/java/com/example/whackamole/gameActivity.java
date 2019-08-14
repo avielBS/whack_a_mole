@@ -1,26 +1,20 @@
 package com.example.whackamole;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.GridLayout;
-
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 import java.util.Timer;
@@ -30,7 +24,7 @@ public class gameActivity extends AppCompatActivity {
 
     private final int ROWS = 3;
     private final int COLUMS = 3;
-    private final int GAME_DURACTION = 15;
+    private final int GAME_DURACTION = 30;
     private final int WIN_SCORE = 30;
     private final int MAX_MISS = 3;
 
@@ -54,7 +48,6 @@ public class gameActivity extends AppCompatActivity {
         Bundle extars = getIntent().getExtras();
         name = extars.getString("name");
 
-        TextView textView = findViewById(R.id.name_txt_view);
         textViewCountDown = findViewById(R.id.time_txt);
         textViewScore = findViewById(R.id.score_txt);
         textViewMiss = findViewById(R.id.miss_txt);
@@ -67,12 +60,13 @@ public class gameActivity extends AppCompatActivity {
             Button b = new Button(this);
             b.setBackgroundColor(Color.GREEN);
             b.setAlpha(0);
-
+ //           b.setBackgroundResource(R.drawable.mole);
+            b.setText("X");
 
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (view.getAlpha() > 0)
+                    if (view.getAlpha() > 0.3)
                         score++;
                     else
                         miss++;
@@ -92,7 +86,6 @@ public class gameActivity extends AppCompatActivity {
 
         game_laLayout.addView(gridLayout);
 
-        textView.setText(name);
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -106,7 +99,7 @@ public class gameActivity extends AppCompatActivity {
                     }
                 });
             }
-        }, 500, 2000);
+        }, 200, 800);
 
 
         startCountDown();
@@ -125,6 +118,8 @@ public class gameActivity extends AppCompatActivity {
         AnimatorSet set = new AnimatorSet();
         set.play(show).with(rotation);
         set.start();
+
+
 
 
     }
@@ -156,7 +151,7 @@ public class gameActivity extends AppCompatActivity {
     }
 
     private void checkGameStatus() {
-        if (score >= WIN_SCORE || timeLeft == 0 || miss == 3) {
+        if (score >= WIN_SCORE || timeLeft == 0 || miss == MAX_MISS) {
             timer.cancel();
             showStatusMessage();
             countDownTimer.cancel();
@@ -166,9 +161,9 @@ public class gameActivity extends AppCompatActivity {
     private void showStatusMessage() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = "";
-        if (score >= WIN_SCORE)
+        if (this.score >= WIN_SCORE)
             message = this.name + " Win !";
-        else if (score < WIN_SCORE || miss == 3)
+        else if (this.score < WIN_SCORE || this.miss == 3)
             message = this.name + " Lose !";
 
         builder.setTitle("Status").setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
