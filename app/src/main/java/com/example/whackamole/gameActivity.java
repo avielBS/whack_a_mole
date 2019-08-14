@@ -41,6 +41,7 @@ public class gameActivity extends AppCompatActivity {
     private TextView textViewMiss;
     private Timer timer;
 
+
     private String name;
     private int score;
     private int miss;
@@ -59,27 +60,35 @@ public class gameActivity extends AppCompatActivity {
         textViewMiss = findViewById(R.id.miss_txt);
         RelativeLayout game_laLayout = findViewById(R.id.game__layout);
 
-        GridLayout gridLayout = createGridLayout(ROWS,COLUMS);
-        final Button buttons[] = new Button[ROWS*COLUMS];
+        GridLayout gridLayout = createGridLayout(ROWS, COLUMS);
+        final Button buttons[] = new Button[ROWS * COLUMS];
 
-        for (int i = 0; i < ROWS*COLUMS; i++) {
+        for (int i = 0; i < ROWS * COLUMS; i++) {
             Button b = new Button(this);
             b.setBackgroundColor(Color.GREEN);
             b.setAlpha(0);
+
+
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(view.getAlpha() > 0)
+                    if (view.getAlpha() > 0)
                         score++;
-                    Log.d("score","score: "+score);
+                    else
+                        miss++;
+
+                    textViewMiss.setText("" + miss);
+                    textViewScore.setText("" + score);
+                    checkGameStatus();
+
+                    Log.d("score", "score: " + score);
 
                 }
             });
             buttons[i] = b;
-        }
-        for (int i = 0; i < ROWS*COLUMS; i++) {
             gridLayout.addView(buttons[i]);
         }
+
 
         game_laLayout.addView(gridLayout);
 
@@ -89,27 +98,27 @@ public class gameActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                final int index = (int)(Math.random()*(ROWS*COLUMS));
+                final int index = (int) (Math.random() * (ROWS * COLUMS));
                 buttons[index].post(new Runnable() {
                     @Override
                     public void run() {
-                        showRandomButtons(buttons,index);
+                        showRandomButtons(buttons, index);
                     }
                 });
             }
-        },500,2000);
+        }, 500, 2000);
 
 
         startCountDown();
 
     }
 
-    private void showRandomButtons(Button[] buttons , int index) {
+    private void showRandomButtons(Button[] buttons, int index) {
 
 
-        ObjectAnimator rotation = ObjectAnimator.ofFloat(buttons[index],"rotation",0f,360f);
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(buttons[index], "rotation", 0f, 360f);
         rotation.setDuration(1000);
-        ObjectAnimator show = ObjectAnimator.ofFloat(buttons[index],"alpha",0f,1f,1f,0f);
+        ObjectAnimator show = ObjectAnimator.ofFloat(buttons[index], "alpha", 0f, 1f, 1f, 0f);
         show.setDuration(2000);
 
         //setAnimator
@@ -129,30 +138,38 @@ public class gameActivity extends AppCompatActivity {
     }
 
     private void startCountDown() {
-    CountDownTimer countDownTimer = new CountDownTimer(GAME_DURACTION*1000,1000) {
-        @Override
-        public void onTick(long l) {
-            timeLeft = l;
-            updateTextCountDown();
-        }
+        countDownTimer = new CountDownTimer(GAME_DURACTION * 1000, 1000) {
+            @Override
+            public void onTick(long l) {
+                timeLeft = l;
+                updateTextCountDown();
+            }
 
-        @Override
-        public void onFinish() {
-            timeLeft=0;
-            updateTextCountDown();
-            showStatusMessage(name);
-            timer.cancel();
-        }
-    }.start();
+            @Override
+            public void onFinish() {
+                timeLeft = 0;
+                updateTextCountDown();
+                checkGameStatus();
+            }
+        }.start();
+
     }
 
-    private void showStatusMessage(String name) {
+    private void checkGameStatus() {
+        if (score >= WIN_SCORE || timeLeft == 0 || miss == 3) {
+            timer.cancel();
+            showStatusMessage();
+            countDownTimer.cancel();
+        }
+    }
+
+    private void showStatusMessage() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String message="";
-        if(score >= WIN_SCORE)
-            message = name +" Win !";
+        String message = "";
+        if (score >= WIN_SCORE)
+            message = this.name + " Win !";
         else if (score < WIN_SCORE || miss == 3)
-            message = name +" Lose !";
+            message = this.name + " Lose !";
 
         builder.setTitle("Status").setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -163,11 +180,11 @@ public class gameActivity extends AppCompatActivity {
     }
 
     private void updateTextCountDown() {
-        int minutes = (int)(timeLeft/1000)/60 ;
-        int seconds = (int)(timeLeft/1000)%60;
+        int minutes = (int) (timeLeft / 1000) / 60;
+        int seconds = (int) (timeLeft / 1000) % 60;
 
-        textViewCountDown.setText(String.format(Locale.getDefault(),"%2d:%2d",minutes,seconds));
-        if(timeLeft<=10*1000)
+        textViewCountDown.setText(String.format(Locale.getDefault(), "%2d:%2d", minutes, seconds));
+        if (timeLeft <= 10 * 1000)
             textViewCountDown.setTextColor(Color.RED);
 
     }
