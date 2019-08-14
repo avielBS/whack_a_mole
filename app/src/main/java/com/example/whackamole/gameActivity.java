@@ -2,33 +2,44 @@ package com.example.whackamole;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
+
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
+
+import android.util.Log;
 import android.view.View;
+
 import android.widget.Button;
 import android.widget.GridLayout;
+
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class gameActivity extends AppCompatActivity {
 
     private final int ROWS = 3;
     private final int COLUMS = 3;
     private final int GAME_DURACTION = 15;
+    private final int WIN_SCORE = 30;
+    private final int MAX_MISS = 3;
+
     private long timeLeft;
     private CountDownTimer countDownTimer;
     private TextView textViewCountDown;
     private TextView textViewScore;
     private TextView textViewMiss;
+    private Timer timer;
 
     private String name;
     private int score;
@@ -46,28 +57,69 @@ public class gameActivity extends AppCompatActivity {
         textViewCountDown = findViewById(R.id.time_txt);
         textViewScore = findViewById(R.id.score_txt);
         textViewMiss = findViewById(R.id.miss_txt);
-        GridLayout game_laLayout = findViewById(R.id.game__layout);
+        RelativeLayout game_laLayout = findViewById(R.id.game__layout);
+
         GridLayout gridLayout = createGridLayout(ROWS,COLUMS);
+        final Button buttons[] = new Button[ROWS*COLUMS];
 
         for (int i = 0; i < ROWS*COLUMS; i++) {
-            Button v = new Button(this);
-            v.setBackgroundColor(Color.BLUE);
-            v.setOnClickListener(new View.OnClickListener() {
+            Button b = new Button(this);
+            b.setBackgroundColor(Color.GREEN);
+            b.setAlpha(0);
+            b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(view,"rotation",0f,360f);
-                    animator.setDuration(1000);
-                    animator.start();
+                    if(view.getAlpha() > 0)
+                        score++;
+                    Log.d("score","score: "+score);
+
                 }
             });
-            gridLayout.addView(v);
+            buttons[i] = b;
+        }
+        for (int i = 0; i < ROWS*COLUMS; i++) {
+            gridLayout.addView(buttons[i]);
         }
 
         game_laLayout.addView(gridLayout);
+
         textView.setText(name);
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                final int index = (int)(Math.random()*(ROWS*COLUMS));
+                buttons[index].post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showRandomButtons(buttons,index);
+                    }
+                });
+            }
+        },500,2000);
+
+
         startCountDown();
 
     }
+
+    private void showRandomButtons(Button[] buttons , int index) {
+
+
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(buttons[index],"rotation",0f,360f);
+        rotation.setDuration(1000);
+        ObjectAnimator show = ObjectAnimator.ofFloat(buttons[index],"alpha",0f,1f,1f,0f);
+        show.setDuration(2000);
+
+        //setAnimator
+        AnimatorSet set = new AnimatorSet();
+        set.play(show).with(rotation);
+        set.start();
+
+
+    }
+
 
     private GridLayout createGridLayout(int rows, int colums) {
         GridLayout gridLayout = new GridLayout(this);
@@ -89,13 +141,20 @@ public class gameActivity extends AppCompatActivity {
             timeLeft=0;
             updateTextCountDown();
             showStatusMessage(name);
+            timer.cancel();
         }
     }.start();
     }
 
     private void showStatusMessage(String name) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Status").setMessage(name+" win").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        String message="";
+        if(score >= WIN_SCORE)
+            message = name +" Win !";
+        else if (score < WIN_SCORE || miss == 3)
+            message = name +" Lose !";
+
+        builder.setTitle("Status").setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 return;
