@@ -182,9 +182,23 @@ public class gameActivity extends AppCompatActivity {
         int minutes = (int) (timeLeft / 1000) / 60;
         int seconds = (int) (timeLeft / 1000) % 60;
 
+        if(timeLeft >10*1000)
         textViewCountDown.setText(String.format(Locale.getDefault(), "%2d:%2d", minutes, seconds));
-        if (timeLeft <= 10 * 1000)
+
+        else {
+            textViewCountDown.setText(String.format(Locale.getDefault(), "%2d", seconds));
             textViewCountDown.setTextColor(Color.RED);
 
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this.textViewCountDown,"scaleX",0f,1f);
+            scaleX.setDuration(800);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this.textViewCountDown,"scaleY",0f,1f);
+            scaleY.setDuration(800);
+
+            AnimatorSet set = new AnimatorSet();
+            set.playTogether(scaleX,scaleY);
+            set.start();
+        }
     }
+
+
 }
