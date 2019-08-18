@@ -53,6 +53,7 @@ public class gameActivity extends AppCompatActivity {
         textViewMiss = findViewById(R.id.miss_txt);
         RelativeLayout game_laLayout = findViewById(R.id.game__layout);
 
+        timer = new Timer();
         GridLayout gridLayout = createGridLayout(ROWS, COLUMS);
         final Button buttons[] = new Button[ROWS * COLUMS];
 
@@ -60,8 +61,7 @@ public class gameActivity extends AppCompatActivity {
             Button b = new Button(this);
             b.setBackgroundColor(Color.GREEN);
             b.setAlpha(0);
- //           b.setBackgroundResource(R.drawable.mole);
-            b.setText("X");
+            b.setBackgroundResource(R.drawable.mole);
 
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -87,12 +87,11 @@ public class gameActivity extends AppCompatActivity {
         game_laLayout.addView(gridLayout);
 
 
-        timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 final int index = (int) (Math.random() * (ROWS * COLUMS));
-                buttons[index].post(new Runnable() {
+                buttons[index].post(new Runnable() { //return to the main thread
                     @Override
                     public void run() {
                         showRandomButtons(buttons, index);
@@ -108,9 +107,9 @@ public class gameActivity extends AppCompatActivity {
 
     private void showRandomButtons(Button[] buttons, int index) {
 
-
         ObjectAnimator rotation = ObjectAnimator.ofFloat(buttons[index], "rotation", 0f, 360f);
         rotation.setDuration(1000);
+
         ObjectAnimator show = ObjectAnimator.ofFloat(buttons[index], "alpha", 0f, 1f, 1f, 0f);
         show.setDuration(2000);
 
@@ -119,11 +118,7 @@ public class gameActivity extends AppCompatActivity {
         set.play(show).with(rotation);
         set.start();
 
-
-
-
     }
-
 
     private GridLayout createGridLayout(int rows, int colums) {
         GridLayout gridLayout = new GridLayout(this);
@@ -166,12 +161,21 @@ public class gameActivity extends AppCompatActivity {
         else if (this.score < WIN_SCORE || this.miss == 3)
             message = this.name + " Lose !";
 
-        builder.setTitle("Status").setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        builder.setTitle("Status").setMessage(message);
+        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 return;
             }
-        }).show();
+        });
+        builder.setPositiveButton("New Game", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+
+        builder.show();
     }
 
     private void updateTextCountDown() {
