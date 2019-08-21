@@ -73,9 +73,13 @@ public class gameActivity extends AppCompatActivity {
             mole.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (view.getAlpha() > 0.3)
+                    if (view.getAlpha() > 0.3) {
                         score++;
-                    else
+                        ObjectAnimator rotate = ObjectAnimator.ofFloat(view,"rotation",0,360);
+                        rotate.setDuration(500);
+                        rotate.start();
+
+                    }else
                         miss++;
 
                     textViewMiss.setText("" + miss);
