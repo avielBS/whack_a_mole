@@ -7,10 +7,10 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,7 +23,7 @@ import java.util.TimerTask;
 public class gameActivity extends AppCompatActivity {
 
     private final int ROWS = 3;
-    private final int COLUMS = 3;
+    private final int COLUMNS = 3;
     private final int GAME_DURACTION = 30;
     private final int WIN_SCORE = 30;
     private final int MAX_MISS = 3;
@@ -35,7 +35,7 @@ public class gameActivity extends AppCompatActivity {
     private TextView textViewMiss;
     private Timer timer;
 
-
+    private LinearLayout wholeAndMole[];
     private String name;
     private int score;
     private int miss;
@@ -54,16 +54,23 @@ public class gameActivity extends AppCompatActivity {
         RelativeLayout game_laLayout = findViewById(R.id.game__layout);
 
         timer = new Timer();
-        GridLayout gridLayout = createGridLayout(ROWS, COLUMS);
-        final Button buttons[] = new Button[ROWS * COLUMS];
+        GridLayout gridLayout = createGridLayout(ROWS, COLUMNS);
+        wholeAndMole = new LinearLayout[ROWS * COLUMNS];
 
-        for (int i = 0; i < ROWS * COLUMS; i++) {
-            Button b = new Button(this);
-            b.setBackgroundColor(Color.GREEN);
-            b.setAlpha(0);
-            b.setBackgroundResource(R.drawable.mole);
 
-            b.setOnClickListener(new View.OnClickListener() {
+        for (int i = 0; i < ROWS * COLUMNS; i++) {
+
+            wholeAndMole[i] = new LinearLayout(this);
+            ImageView whole = new ImageView(this);
+            ImageView mole = new ImageView(this);
+
+            whole.setImageResource(R.drawable.small_whole);
+            mole.setImageResource(R.drawable.small_mole);
+            mole.setAlpha(0f);
+
+            mole.setTranslationY(50f);
+
+            mole.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (view.getAlpha() > 0.3)
@@ -75,26 +82,28 @@ public class gameActivity extends AppCompatActivity {
                     textViewScore.setText("" + score);
                     checkGameStatus();
 
-                    Log.d("score", "score: " + score);
-
                 }
             });
-            buttons[i] = b;
-            gridLayout.addView(buttons[i]);
+
+
+            wholeAndMole[i].setOrientation(LinearLayout.VERTICAL);
+            wholeAndMole[i].addView(mole);
+            wholeAndMole[i].addView(whole);
+
+            gridLayout.addView(wholeAndMole[i]);
         }
 
 
         game_laLayout.addView(gridLayout);
 
-
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                final int index = (int) (Math.random() * (ROWS * COLUMS));
-                buttons[index].post(new Runnable() { //return to the main thread
+                final int index = (int) (Math.random() * (ROWS * COLUMNS));
+                wholeAndMole[index].post(new Runnable() { //return to the main thread
                     @Override
                     public void run() {
-                        showRandomButtons(buttons, index);
+                        showRandomButtons(wholeAndMole, index);
                     }
                 });
             }
@@ -105,24 +114,27 @@ public class gameActivity extends AppCompatActivity {
 
     }
 
-    private void showRandomButtons(Button[] buttons, int index) {
 
-        ObjectAnimator rotation = ObjectAnimator.ofFloat(buttons[index], "rotation", 0f, 360f);
-        rotation.setDuration(1000);
 
-        ObjectAnimator show = ObjectAnimator.ofFloat(buttons[index], "alpha", 0f, 1f, 1f, 0f);
+    private void showRandomButtons(LinearLayout[] wholeAndMole, int index) {
+
+        float buttom=50,top=-10;
+        ObjectAnimator jump = ObjectAnimator.ofFloat(wholeAndMole[index].getChildAt(0), "translationY",   buttom,top,top,buttom);
+        jump.setDuration(2000);
+
+        ObjectAnimator show = ObjectAnimator.ofFloat(wholeAndMole[index].getChildAt(0), "alpha", 0f, 1f, 1f, 0f);
         show.setDuration(2000);
 
         //setAnimator
         AnimatorSet set = new AnimatorSet();
-        set.play(show).with(rotation);
+        set.play(show).with(jump);
         set.start();
 
     }
 
-    private GridLayout createGridLayout(int rows, int colums) {
+    private GridLayout createGridLayout(int rows, int columns) {
         GridLayout gridLayout = new GridLayout(this);
-        gridLayout.setColumnCount(colums);
+        gridLayout.setColumnCount(columns);
         gridLayout.setRowCount(rows);
         return gridLayout;
     }

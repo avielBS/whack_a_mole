@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String name = editText.getText().toString();
 
-                if(!name.isEmpty() && !name.equals("my name"))
+                if(!name.isEmpty() )
                     openGameActivity(name);
                 else
                     enterValidNameMessage();

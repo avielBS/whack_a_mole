@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +17,7 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:text="Time : "
+            android:text="@string/time"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
@@ -41,14 +40,14 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:text="score : "
+            android:text="@string/score"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:id="@+id/score_txt"
-            android:text="0"
+            android:text="@string/init_score"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
@@ -56,14 +55,14 @@
         <TextView
             android:layout_marginLeft="50dp"
             android:layout_width="wrap_content"
-            android:text="miss : "
+            android:text="@string/miss"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:id="@+id/miss_txt"
-            android:text="0"
+            android:text="@string/init_miss"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
